@@ -1,0 +1,41 @@
+:root {
+    font-family: Arial, sans-serif;
+    color: #1d2c3b;
+    background: #edf2f7;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.contenedor {
+    width: min(900px, 92%);
+    margin: 48px auto;
+}
+
+header { margin-bottom: 22px; }
+.etiqueta { font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #376287; }
+h1 { margin: 8px 0; font-size: 38px; }
+p { line-height: 1.5; }
+
+.tarjeta, .estado {
+    background: #fff;
+    border: 1px solid #d3dde7;
+    border-radius: 12px;
+    padding: 22px;
+}
+
+.estado { margin-top: 16px; background: #f7fbff; }
+label { display: block; font-weight: 700; margin-bottom: 8px; }
+.buscador { display: flex; gap: 10px; align-items: center; }
+input { flex: 1; padding: 11px; border: 1px solid #9babb9; border-radius: 7px; }
+button { padding: 11px 18px; border: 0; border-radius: 7px; background: #175a91; color: white; cursor: pointer; }
+a { color: #175a91; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 22px; }
+th, td { padding: 12px; border-bottom: 1px solid #e3e9ef; text-align: left; }
+th { background: #f3f6f9; }
+
+@media (max-width: 600px) {
+    .buscador { flex-wrap: wrap; }
+    input { flex-basis: 100%; }
+}

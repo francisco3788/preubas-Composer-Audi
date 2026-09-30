@@ -1,0 +1,75 @@
+name: Composer Security Audit
+
+on:
+  # Se ejecuta cuando un Pull Request quiere entrar a desarrollo.
+  # Tambien vuelve a ejecutarse si se agregan nuevos commits al mismo PR.
+  pull_request:
+    branches:
+      - desarrollo
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+# Solo necesita leer el contenido del repositorio.
+permissions:
+  contents: read
+
+# Si llega un nuevo cambio al mismo PR,
+# cancela el analisis anterior y analiza el ultimo.
+concurrency:
+  group: composer-audit-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  composer-audit:
+    name: Composer Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Descarga el codigo propuesto en el Pull Request.
+      - name: Descargar codigo
+        uses: actions/checkout@v4
+
+      # Prepara PHP y Composer dentro de GitHub Actions.
+      # No modifica el servidor ni el PC del desarrollador.
+      - name: Preparar PHP y Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:2.10.3
+          coverage: none
+
+      # Evidencia las versiones utilizadas durante el analisis.
+      - name: Mostrar versiones
+        run: |
+          php --version
+          composer --version
+
+      # Composer Audit necesita estos archivos.
+      - name: Verificar archivos de Composer
+        run: |
+          if [ ! -s composer.json ]; then
+            echo "::error::Falta composer.json o esta vacio."
+            exit 1
+          fi
+
+          if [ ! -s composer.lock ]; then
+            echo "::error::Falta composer.lock o esta vacio."
+            exit 1
+          fi
+
+      # Comprueba que composer.json sea valido
+      # y que composer.lock corresponda al manifiesto.
+      - name: Validar manifiesto y lock
+        run: >
+          composer --no-interaction --no-plugins --no-scripts
+          validate --check-lock --no-check-publish
+
+      # Revisa las versiones exactas almacenadas en composer.lock
+      # contra avisos de seguridad conocidos.
+      - name: Ejecutar Composer Audit
+        run: >
+          composer --no-interaction --no-plugins --no-scripts --no-cache
+          audit --locked --format=table --abandoned=report
